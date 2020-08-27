@@ -1,0 +1,2 @@
+xcopy /y .\src\main\resources\example_configurable_shaped_recipe.json .\src\test\resources\data\configurablerecipeslibrary\recipes\compass_configured.json
+xcopy /y .\src\main\resources\example_configurable_shapeless_recipe.json .\src\test\resources\data\configurablerecipeslibrary\recipes\black_concrete_powder_configured.json

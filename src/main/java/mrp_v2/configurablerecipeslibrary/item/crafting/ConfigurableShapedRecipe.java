@@ -21,22 +21,22 @@ import net.minecraftforge.common.crafting.IShapedRecipe;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class ConfigurableShapedRecipe extends ConfigurableCraftingRecipe implements IShapedRecipe<CraftingInventory>
 {
-    public static int MAX_WIDTH = 3;
-    public static int MAX_HEIGHT = 3;
-    protected final int recipeWidth;
-    protected final int recipeHeight;
+    private final int recipeWidth;
+    private final int recipeHeight;
 
-    protected ConfigurableShapedRecipe(ResourceLocation id, String group, ItemStack recipeOutput,
+    private ConfigurableShapedRecipe(ResourceLocation id, String group, ItemStack recipeOutput,
             NonNullList<Ingredient> recipeItems, int recipeWidth, int recipeHeight)
     {
-        this(id, group, recipeOutput, recipeItems, recipeWidth, recipeHeight, Sets.newHashSet());
+        this(id, group, recipeOutput, recipeItems, recipeWidth, recipeHeight, new HashSet<>());
     }
 
-    protected ConfigurableShapedRecipe(ResourceLocation id, String group, ItemStack recipeOutput,
+    private ConfigurableShapedRecipe(ResourceLocation id, String group, ItemStack recipeOutput,
             NonNullList<Ingredient> recipeItems, int recipeWidth, int recipeHeight, Set<IngredientOverride> overrides)
     {
         super(id, group, recipeOutput, recipeItems, overrides);
@@ -44,7 +44,7 @@ public class ConfigurableShapedRecipe extends ConfigurableCraftingRecipe impleme
         this.recipeHeight = recipeHeight;
     }
 
-    protected static Map<String, Ingredient> deserializeKey(JsonObject json)
+    private static Map<String, Ingredient> deserializeKey(JsonObject json)
     {
         Map<String, Ingredient> map = Maps.newHashMap();
         for (Map.Entry<String, JsonElement> entry : json.entrySet())
@@ -64,12 +64,13 @@ public class ConfigurableShapedRecipe extends ConfigurableCraftingRecipe impleme
         return map;
     }
 
-    protected static String[] patternFromJson(JsonArray jsonArr)
+    private static String[] patternFromJson(JsonArray jsonArr)
     {
         String[] strings = new String[jsonArr.size()];
-        if (strings.length > MAX_HEIGHT)
+        if (strings.length > ConfigurableCraftingRecipe.MAX_HEIGHT)
         {
-            throw new JsonSyntaxException("Invalid pattern: too many rows, " + MAX_HEIGHT + " is maximum");
+            throw new JsonSyntaxException(
+                    "Invalid pattern: too many rows, " + ConfigurableCraftingRecipe.MAX_HEIGHT + " is maximum");
         } else if (strings.length == 0)
         {
             throw new JsonSyntaxException("Invalid pattern: empty pattern not allowed");
@@ -78,9 +79,11 @@ public class ConfigurableShapedRecipe extends ConfigurableCraftingRecipe impleme
             for (int i = 0; i < strings.length; ++i)
             {
                 String s = JSONUtils.getString(jsonArr.get(i), "pattern[" + i + "]");
-                if (s.length() > MAX_WIDTH)
+                if (s.length() > ConfigurableCraftingRecipe.MAX_WIDTH)
                 {
-                    throw new JsonSyntaxException("Invalid pattern: too many columns, " + MAX_WIDTH + " is maximum");
+                    throw new JsonSyntaxException("Invalid pattern: too many columns, " +
+                            ConfigurableCraftingRecipe.MAX_WIDTH +
+                            " is maximum");
                 }
                 if (i > 0 && strings[0].length() != s.length())
                 {
@@ -148,7 +151,7 @@ public class ConfigurableShapedRecipe extends ConfigurableCraftingRecipe impleme
         return i;
     }
 
-    protected static NonNullList<Ingredient> deserializeIngredients(String[] pattern, Map<String, Ingredient> keys,
+    private static NonNullList<Ingredient> deserializeIngredients(String[] pattern, Map<String, Ingredient> keys,
             int patternWidth, int patternHeight)
     {
         NonNullList<Ingredient> ingredients = NonNullList.withSize(patternWidth * patternHeight, Ingredient.EMPTY);
@@ -190,12 +193,55 @@ public class ConfigurableShapedRecipe extends ConfigurableCraftingRecipe impleme
 
     @Override public boolean matches(CraftingInventory inv, World worldIn)
     {
+        for (int i = 0; i <= inv.getWidth() - this.recipeWidth; ++i)
+        {
+            for (int j = 0; j <= inv.getHeight() - this.recipeHeight; ++j)
+            {
+                if (this.checkMatch(inv, i, j, true))
+                {
+                    return true;
+                }
+                if (this.checkMatch(inv, i, j, false))
+                {
+                    return true;
+                }
+            }
+        }
         return false;
+    }
+
+    private boolean checkMatch(CraftingInventory craftingInventory, int p_77573_2_, int p_77573_3_, boolean p_77573_4_)
+    {
+        NonNullList<Ingredient> recipeItems = this.getIngredients();
+        for (int i = 0; i < craftingInventory.getWidth(); ++i)
+        {
+            for (int j = 0; j < craftingInventory.getHeight(); ++j)
+            {
+                int k = i - p_77573_2_;
+                int l = j - p_77573_3_;
+                Ingredient ingredient = Ingredient.EMPTY;
+                if (k >= 0 && l >= 0 && k < this.recipeWidth && l < this.recipeHeight)
+                {
+                    if (p_77573_4_)
+                    {
+                        ingredient = recipeItems.get(this.recipeWidth - k - 1 + l * this.recipeWidth);
+                    } else
+                    {
+                        ingredient = recipeItems.get(k + l * this.recipeWidth);
+                    }
+                }
+                if (!ingredient.test(craftingInventory.getStackInSlot(i + j * craftingInventory.getWidth())))
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override public boolean canFit(int width, int height)
     {
-        return false;
+        return width >= this.recipeWidth && height >= this.recipeHeight;
     }
 
     @Override public IRecipeSerializer<?> getSerializer()
@@ -203,55 +249,10 @@ public class ConfigurableShapedRecipe extends ConfigurableCraftingRecipe impleme
         return Serializer.INSTANCE;
     }
 
-    @Override protected TreeSet<IngredientOverride> organizeOverrides(Set<IngredientOverride> overrides)
-    {
-        HashMap<Integer, HashSet<IngredientOverride>> overridesByPriority = new HashMap<>();
-        for (IngredientOverride override : overrides)
-        {
-            if (overridesByPriority.containsKey(override.getPriority()))
-            {
-                overridesByPriority.get(override.getPriority()).add(override);
-            } else
-            {
-                HashSet<IngredientOverride> newSet = new HashSet<>();
-                newSet.add(override);
-                overridesByPriority.put(override.getPriority(), newSet);
-            }
-        }
-        for (int priority : overridesByPriority.keySet())
-        {
-            HashSet<Ingredient> foundKeys = new HashSet<>();
-            for (IngredientOverride override : overridesByPriority.get(priority))
-            {
-                for (Ingredient ingredient : override.getOverriddenIngredients())
-                {
-                    if (!foundKeys.add(ingredient))
-                    {
-                        throw new RuntimeException(
-                                "Cannot have multiple IngredientOverrides with the same priority that modify the same Ingredient!");
-                    }
-                }
-            }
-        }
-        return new TreeSet<>(overrides);
-    }
-
-    @Override public NonNullList<Ingredient> getIngredients()
-    {
-        NonNullList<Ingredient> ingredients = NonNullList.create();
-        ingredients.addAll(this.recipeItems);
-        for (IngredientOverride override : this.overrides)
-        {
-            override.apply(ingredients);
-        }
-        return ingredients;
-    }
-
     public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>>
             implements IRecipeSerializer<ConfigurableShapedRecipe>
     {
         public static final Serializer INSTANCE = new Serializer();
-        private static final String OVERRIDES_KEY = "overrides";
 
         private Serializer()
         {
@@ -260,20 +261,15 @@ public class ConfigurableShapedRecipe extends ConfigurableCraftingRecipe impleme
 
         @Override public ConfigurableShapedRecipe read(ResourceLocation recipeId, JsonObject json)
         {
-            String group = JSONUtils.getString(json, "group", "");
-            Map<String, Ingredient> key = ConfigurableShapedRecipe.deserializeKey(JSONUtils.getJsonObject(json, "key"));
             String[] pattern = ConfigurableShapedRecipe.shrink(
                     ConfigurableShapedRecipe.patternFromJson(JSONUtils.getJsonArray(json, "pattern")));
             int patternWidth = pattern[0].length();
             int patternHeight = pattern.length;
-            NonNullList<Ingredient> ingredients =
-                    ConfigurableShapedRecipe.deserializeIngredients(pattern, key, patternWidth, patternHeight);
-            ItemStack recipeOutput = ShapedRecipe.deserializeItem(JSONUtils.getJsonObject(json, "result"));
-            Set<IngredientOverride> overrides = json.has(OVERRIDES_KEY) ?
-                    IngredientOverride.deserializeOverrides(JSONUtils.getJsonArray(json, OVERRIDES_KEY)) :
-                    Sets.newHashSet();
-            return new ConfigurableShapedRecipe(recipeId, group, recipeOutput, ingredients, patternWidth, patternHeight,
-                    overrides);
+            return new ConfigurableShapedRecipe(recipeId, JSONUtils.getString(json, "group", ""),
+                    ShapedRecipe.deserializeItem(JSONUtils.getJsonObject(json, "result")),
+                    ConfigurableShapedRecipe.deserializeIngredients(pattern,
+                            ConfigurableShapedRecipe.deserializeKey(JSONUtils.getJsonObject(json, "key")), patternWidth,
+                            patternHeight), patternWidth, patternHeight, IngredientOverride.getOverridesFromJson(json));
         }
 
         @Nullable @Override public ConfigurableShapedRecipe read(ResourceLocation recipeId, PacketBuffer buffer)

@@ -2,6 +2,7 @@ package mrp_v2.configurablerecipeslibrary.util;
 
 import mrp_v2.configurablerecipeslibrary.ConfigurableRecipesLibrary;
 import mrp_v2.configurablerecipeslibrary.item.crafting.ConfigurableShapedRecipe;
+import mrp_v2.configurablerecipeslibrary.item.crafting.ConfigurableShapelessRecipe;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -13,6 +14,8 @@ public class RegistryHandler
     @SubscribeEvent
     public static void registerRecipeSerializers(final RegistryEvent.Register<IRecipeSerializer<?>> event)
     {
-        event.getRegistry().registerAll(ConfigurableShapedRecipe.Serializer.INSTANCE);
+        event.getRegistry()
+                .registerAll(ConfigurableShapedRecipe.Serializer.INSTANCE,
+                        ConfigurableShapelessRecipe.Serializer.INSTANCE);
     }
 }

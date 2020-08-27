@@ -1,0 +1,48 @@
+{
+    "type": "configurablerecipeslibrary:crafting_shaped_configurable",
+    "pattern": [
+        " # ", "#X#", " # "
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:iron_ingot"
+        },
+        "X": {
+            "item": "minecraft:redstone"
+        }
+    },
+    "result": {
+        "item": "minecraft:compass"
+    },
+    "overrides": [
+        {
+            "condition": "replace_ingots_with_blocks",
+            "overrides": [
+                {
+                    "originals": [
+                        {
+                            "item": "minecraft:iron_ingot"
+                        }
+                    ],
+                    "replacement": {
+                        "item": "minecraft:iron_block"
+                    }
+                }
+            ]
+        }, {
+            "condition": "replace_dusts_with_blocks",
+            "overrides": [
+                {
+                    "originals": [
+                        {
+                            "item": "minecraft:redstone"
+                        }
+                    ],
+                    "replacement": {
+                        "item": "minecraft:redstone_block"
+                    }
+                }
+            ]
+        }
+    ]
+}

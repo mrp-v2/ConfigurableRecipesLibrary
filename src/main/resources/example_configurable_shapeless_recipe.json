@@ -1,0 +1,63 @@
+{
+    "type": "configurablerecipeslibrary:crafting_shapeless_configurable",
+    "group": "concrete_powder",
+    "ingredients": [
+        {
+            "item": "minecraft:black_dye"
+        }, {
+            "item": "minecraft:sand"
+        }, {
+            "item": "minecraft:sand"
+        }, {
+            "item": "minecraft:sand"
+        }, {
+            "item": "minecraft:sand"
+        }, {
+            "item": "minecraft:gravel"
+        }, {
+            "item": "minecraft:gravel"
+        }, {
+            "item": "minecraft:gravel"
+        }, {
+            "item": "minecraft:gravel"
+        }
+    ],
+    "result": {
+        "item": "minecraft:black_concrete_powder",
+        "count": 8
+    },
+    "overrides": [
+        {
+            "condition": "replace_sand_with_red_sand",
+            "overrides": [
+                {
+                    "originals": [
+                        {
+                            "item": "minecraft:sand"
+                        }
+                    ],
+                    "replacement": {
+                        "item": "minecraft:red_sand"
+                    }
+                }
+            ]
+        }, {
+            "priority": 1,
+            "condition": "replace_sand_with_sandstone",
+            "overrides": [
+                {
+                    "originals": [
+                        {
+                            "item": "minecraft:sand"
+                        }, {
+                            "item": "minecraft:red_sand"
+                        }
+                    ],
+                    "replacement": {
+                        "item": "minecraft:sandstone"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,76 +1,103 @@
 package mrp_v2.configurablerecipeslibrary.item.crafting;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import mrp_v2.configurablerecipeslibrary.item.crafting.util.EquatableMap;
+import mrp_v2.configurablerecipeslibrary.util.Util;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class IngredientOverride implements Comparable<IngredientOverride>
 {
-    public static Map<String, Supplier<Boolean>> conditionMap = Maps.newHashMap();
-    protected final int priority;
+    /**
+     * A map of <c>String</c> values used as the <c>condition</c> of recipe JSONs to the <c>Supplier{@literal <Boolean>}</c> each string indicates.
+     * All mappings need to be added before recipes are loaded. This can be done from {@link net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent}.
+     * This map is thread safe.
+     */
+    private static final Map<String, Supplier<Boolean>> conditionMap = Collections.synchronizedMap(new HashMap<>());
+    private static final String OVERRIDES_KEY = "overrides";
+    private final int priority;
     private final Supplier<Boolean> conditionSupplier;
-    private final Map<Ingredient, Ingredient> ingredientOverrides;
+    private final EquatableMap<Ingredient, Ingredient> ingredientOverrides;
 
-    public IngredientOverride(int priority, Supplier<Boolean> conditionSupplier,
-            Map<Ingredient, Ingredient> ingredientOverrides)
+    private IngredientOverride(int priority, Supplier<Boolean> conditionSupplier,
+            EquatableMap<Ingredient, Ingredient> ingredientOverrides)
     {
         this.priority = priority;
         this.conditionSupplier = conditionSupplier;
         this.ingredientOverrides = ingredientOverrides;
     }
 
+    /**
+     * @param condition The id of the condition as used in recipe JSONs.
+     * @param mapping The {@literal Supplier<Boolean>} for the condition.
+     *
+     * @return True if the condition mapping was successfully added.
+     */
+    public static boolean addConditionMapping(String condition, Supplier<Boolean> mapping)
+    {
+        return conditionMap.putIfAbsent(condition, mapping) == null;
+    }
+
+    public static Set<IngredientOverride> getOverridesFromJson(JsonObject json)
+    {
+        return json.has(OVERRIDES_KEY) ?
+                IngredientOverride.deserializeOverrides(JSONUtils.getJsonArray(json, OVERRIDES_KEY)) :
+                new HashSet<>();
+    }
+
     public static Set<IngredientOverride> deserializeOverrides(JsonArray json)
     {
-        Set<IngredientOverride> overrides = Sets.newHashSet();
-        json.forEach((element) ->
-        {
-            if (!element.isJsonObject())
-            {
-                throw new JsonSyntaxException("Expected a JsonObject but got a " + element.getClass().getName());
-            }
-            JsonObject obj = element.getAsJsonObject();
-            overrides.add(IngredientOverride.deserializeOverride(obj));
-        });
+        Set<IngredientOverride> overrides = new HashSet<>();
+        Util.doForEachJsonObject(json, (obj) -> overrides.add(IngredientOverride.deserializeOverride(obj)));
         return overrides;
     }
 
-    public static IngredientOverride deserializeOverride(JsonObject json)
+    private static IngredientOverride deserializeOverride(JsonObject json)
     {
-        int priority = JSONUtils.getInt(json, "priority", 0);
         String condition = JSONUtils.getString(json, "condition");
-        Map<Ingredient, Ingredient> keyOverrides =
-                IngredientOverride.deserializeIngredientOverrides(JSONUtils.getJsonArray(json, "ingredient_overrides"));
-        return new IngredientOverride(priority, conditionMap.get(condition), keyOverrides);
+        if (!conditionMap.containsKey(condition))
+        {
+            throw new IllegalStateException("No Supplier<Boolean> exists for condition '" + condition + "'");
+        }
+        return new IngredientOverride(JSONUtils.getInt(json, "priority", 0), conditionMap.get(condition),
+                IngredientOverride.deserializeIngredientOverrides(JSONUtils.getJsonArray(json, "overrides")));
     }
 
-    public static Map<Ingredient, Ingredient> deserializeIngredientOverrides(JsonArray json)
+    private static EquatableMap<Ingredient, Ingredient> deserializeIngredientOverrides(JsonArray json)
     {
-        Map<Ingredient, Ingredient> map = Maps.newHashMap();
-        json.forEach((element) ->
+        EquatableMap<Ingredient, Ingredient> map = new EquatableMap<>(IngredientOverride::ingredientsEqual);
+        Util.doForEachJsonObject(json, (obj) ->
         {
-            if (!element.isJsonObject())
-            {
-                throw new JsonSyntaxException("Expected a JsonObject but got a " + element.getClass().getName());
-            }
-            JsonObject obj = element.getAsJsonObject();
-            Ingredient original = Ingredient.deserialize(obj.get("original"));
+            Set<Ingredient> originals = deserializeIngredientList(JSONUtils.getJsonArray(obj, "originals"));
             Ingredient replacement = Ingredient.deserialize(obj.get("replacement"));
-            if (map.put(original, replacement) != null)
+            originals.forEach((original) ->
             {
-                throw new JsonSyntaxException(
-                        "Cannot have multiple replacement ingredients for the same original ingredient!");
-            }
+                if (map.put(original, replacement) != null)
+                {
+                    throw new JsonSyntaxException(
+                            "Cannot have multiple replacement ingredients for the same original ingredient!");
+                }
+            });
         });
         return map;
+    }
+
+    private static Set<Ingredient> deserializeIngredientList(JsonArray json)
+    {
+        Set<Ingredient> ingredients = new HashSet<>();
+        Util.doForEachJsonObject(json, (obj) -> ingredients.add(Ingredient.deserialize(obj)));
+        return ingredients;
+    }
+
+    private static boolean ingredientsEqual(Ingredient a, Ingredient b)
+    {
+        return a.serialize().toString().equals(b.serialize().toString());
     }
 
     @Override public int compareTo(IngredientOverride o)
