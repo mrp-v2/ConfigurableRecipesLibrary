@@ -139,9 +139,15 @@ public class ConditionBuilder
 
         @Override Supplier<Boolean> build()
         {
-            return str.startsWith("!") ?
-                    ConfigurableCraftingRecipe.conditionMap.get(str.substring(1))::invertGet :
-                    ConfigurableCraftingRecipe.conditionMap.get(str);
+            boolean invert = str.startsWith("!");
+            String condition = invert ? str.substring(1) : str;
+            if (!ConfigurableCraftingRecipe.conditionMap.containsKey(condition))
+            {
+                throw new JsonSyntaxException("Condition '" + condition + "' has no mapping!");
+            }
+            return invert ?
+                    ConfigurableCraftingRecipe.conditionMap.get(condition)::invertGet :
+                    ConfigurableCraftingRecipe.conditionMap.get(condition);
         }
 
         @Override StringPart getAsPart()
