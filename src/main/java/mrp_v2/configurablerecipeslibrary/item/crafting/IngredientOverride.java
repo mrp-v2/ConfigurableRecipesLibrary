@@ -88,6 +88,10 @@ class IngredientOverride implements Comparable<IngredientOverride>
             {
                 throw new JsonSyntaxException("Expected an object or array but got a " + element.getClass().getName());
             }
+            if (!obj.has(REPLACEMENT_KEY))
+            {
+                throw new JsonSyntaxException(Util.makeMissingJSONElementException(REPLACEMENT_KEY));
+            }
             Ingredient replacement = Ingredient.deserialize(obj.get(REPLACEMENT_KEY));
             originals.forEach((original) ->
             {
