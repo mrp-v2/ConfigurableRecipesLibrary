@@ -31,11 +31,9 @@
             "condition": "replace_sand_with_red_sand",
             "overrides": [
                 {
-                    "originals": [
-                        {
-                            "item": "minecraft:sand"
-                        }
-                    ],
+                    "original": {
+                        "item": "minecraft:sand"
+                    },
                     "replacement": {
                         "item": "minecraft:red_sand"
                     }
@@ -46,7 +44,7 @@
             "condition": "replace_sand_with_sandstone",
             "overrides": [
                 {
-                    "originals": [
+                    "original": [
                         {
                             "item": "minecraft:sand"
                         }, {

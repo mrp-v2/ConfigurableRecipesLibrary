@@ -19,11 +19,9 @@
             "condition": "replace_ingots_with_blocks",
             "overrides": [
                 {
-                    "originals": [
-                        {
-                            "item": "minecraft:iron_ingot"
-                        }
-                    ],
+                    "original": {
+                        "item": "minecraft:iron_ingot"
+                    },
                     "replacement": {
                         "item": "minecraft:iron_block"
                     }
@@ -33,11 +31,9 @@
             "condition": "replace_dusts_with_blocks",
             "overrides": [
                 {
-                    "originals": [
-                        {
-                            "item": "minecraft:redstone"
-                        }
-                    ],
+                    "original": {
+                        "item": "minecraft:redstone"
+                    },
                     "replacement": {
                         "item": "minecraft:redstone_block"
                     }
