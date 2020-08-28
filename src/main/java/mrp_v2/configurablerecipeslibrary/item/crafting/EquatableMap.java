@@ -1,12 +1,13 @@
-package mrp_v2.configurablerecipeslibrary.item.crafting.util;
+package mrp_v2.configurablerecipeslibrary.item.crafting;
 
+import javax.annotation.Nullable;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-public class EquatableMap<K, V>
+class EquatableMap<K, V>
 {
     private final BiFunction<K, K, Boolean> equalityComparator;
     private final ArrayList<K> keys;
@@ -19,7 +20,7 @@ public class EquatableMap<K, V>
         this.values = new ArrayList<>();
     }
 
-    public V get(K key)
+    @Nullable public V get(K key)
     {
         int index = getIndexOf(key);
         return index != -1 ? this.values.get(index) : null;
@@ -47,14 +48,11 @@ public class EquatableMap<K, V>
     public Set<K> keySet()
     {
         HashSet<K> set = new HashSet<>(this.keys.size());
-        for (K key : this.keys)
-        {
-            set.add(key);
-        }
+        set.addAll(this.keys);
         return set;
     }
 
-    public V put(K original, V replacement)
+    @Nullable public V put(K original, V replacement)
     {
         if (containsKey(original))
         {

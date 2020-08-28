@@ -1,26 +1,25 @@
 package mrp_v2.configurablerecipeslibrary.item.crafting;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import mrp_v2.configurablerecipeslibrary.item.crafting.util.EquatableMap;
 import mrp_v2.configurablerecipeslibrary.util.Util;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Supplier;
 
-public class IngredientOverride implements Comparable<IngredientOverride>
+class IngredientOverride implements Comparable<IngredientOverride>
 {
-    /**
-     * A map of <c>String</c> values used as the <c>condition</c> of recipe JSONs to the <c>Supplier{@literal <Boolean>}</c> each string indicates.
-     * All mappings need to be added before recipes are loaded. This can be done from {@link net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent}.
-     * This map is thread safe.
-     */
-    private static final Map<String, Supplier<Boolean>> conditionMap = Collections.synchronizedMap(new HashMap<>());
     private static final String OVERRIDES_KEY = "overrides";
+    private static final String ORIGINAL_KEY = "original";
+    private static final String CONDITION_KEY = "condition";
+    private static final String REPLACEMENT_KEY = "replacement";
+    private static final String PRIORITY_KEY = "priority";
     private final int priority;
     private final Supplier<Boolean> conditionSupplier;
     private final EquatableMap<Ingredient, Ingredient> ingredientOverrides;
@@ -33,25 +32,14 @@ public class IngredientOverride implements Comparable<IngredientOverride>
         this.ingredientOverrides = ingredientOverrides;
     }
 
-    /**
-     * @param condition The id of the condition as used in recipe JSONs.
-     * @param mapping The {@literal Supplier<Boolean>} for the condition.
-     *
-     * @return True if the condition mapping was successfully added.
-     */
-    public static boolean addConditionMapping(String condition, Supplier<Boolean> mapping)
-    {
-        return conditionMap.putIfAbsent(condition, mapping) == null;
-    }
-
-    public static Set<IngredientOverride> getOverridesFromJson(JsonObject json)
+    static Set<IngredientOverride> getOverridesFromJson(JsonObject json)
     {
         return json.has(OVERRIDES_KEY) ?
                 IngredientOverride.deserializeOverrides(JSONUtils.getJsonArray(json, OVERRIDES_KEY)) :
                 new HashSet<>();
     }
 
-    public static Set<IngredientOverride> deserializeOverrides(JsonArray json)
+    static Set<IngredientOverride> deserializeOverrides(JsonArray json)
     {
         Set<IngredientOverride> overrides = new HashSet<>();
         Util.doForEachJsonObject(json, (obj) -> overrides.add(IngredientOverride.deserializeOverride(obj)));
@@ -60,13 +48,13 @@ public class IngredientOverride implements Comparable<IngredientOverride>
 
     private static IngredientOverride deserializeOverride(JsonObject json)
     {
-        String condition = JSONUtils.getString(json, "condition");
-        if (!conditionMap.containsKey(condition))
+        if (!json.has(CONDITION_KEY))
         {
-            throw new IllegalStateException("No Supplier<Boolean> exists for condition '" + condition + "'");
+            throw new JsonSyntaxException(Util.makeMissingJSONElementException(CONDITION_KEY));
         }
-        return new IngredientOverride(JSONUtils.getInt(json, "priority", 0), conditionMap.get(condition),
-                IngredientOverride.deserializeIngredientOverrides(JSONUtils.getJsonArray(json, "overrides")));
+        return new IngredientOverride(JSONUtils.getInt(json, PRIORITY_KEY, 0),
+                ConditionBuilder.build(JSONUtils.getString(json, CONDITION_KEY)),
+                IngredientOverride.deserializeIngredientOverrides(JSONUtils.getJsonArray(json, OVERRIDES_KEY)));
     }
 
     private static EquatableMap<Ingredient, Ingredient> deserializeIngredientOverrides(JsonArray json)
@@ -74,8 +62,24 @@ public class IngredientOverride implements Comparable<IngredientOverride>
         EquatableMap<Ingredient, Ingredient> map = new EquatableMap<>(IngredientOverride::ingredientsEqual);
         Util.doForEachJsonObject(json, (obj) ->
         {
-            Set<Ingredient> originals = deserializeIngredientList(JSONUtils.getJsonArray(obj, "originals"));
-            Ingredient replacement = Ingredient.deserialize(obj.get("replacement"));
+            Set<Ingredient> originals;
+            if (!obj.has(ORIGINAL_KEY))
+            {
+                throw new JsonSyntaxException(Util.makeMissingJSONElementException(ORIGINAL_KEY));
+            }
+            JsonElement element = obj.get(ORIGINAL_KEY);
+            if (element.isJsonObject())
+            {
+                originals = new HashSet<>(1);
+                originals.add(Ingredient.deserialize(element));
+            } else if (element.isJsonArray())
+            {
+                originals = deserializeIngredientList(element.getAsJsonArray());
+            } else
+            {
+                throw new JsonSyntaxException("Expected an object or array but got a " + element.getClass().getName());
+            }
+            Ingredient replacement = Ingredient.deserialize(obj.get(REPLACEMENT_KEY));
             originals.forEach((original) ->
             {
                 if (map.put(original, replacement) != null)
@@ -105,12 +109,12 @@ public class IngredientOverride implements Comparable<IngredientOverride>
         return this.priority - o.priority;
     }
 
-    public int getPriority()
+    int getPriority()
     {
         return this.priority;
     }
 
-    public void apply(NonNullList<Ingredient> original)
+    void apply(NonNullList<Ingredient> original)
     {
         if (conditionSupplier.get())
         {
@@ -124,7 +128,7 @@ public class IngredientOverride implements Comparable<IngredientOverride>
         }
     }
 
-    public Set<Ingredient> getOverriddenIngredients()
+    Set<Ingredient> getOverriddenIngredients()
     {
         return this.ingredientOverrides.keySet();
     }

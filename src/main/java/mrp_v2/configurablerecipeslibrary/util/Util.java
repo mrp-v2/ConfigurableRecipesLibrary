@@ -19,4 +19,9 @@ public class Util
             objectConsumer.accept(element.getAsJsonObject());
         });
     }
+
+    public static String makeMissingJSONElementException(String element)
+    {
+        return "Missing JSON element '" + element + "'";
+    }
 }
