@@ -56,9 +56,14 @@ class IngredientOverride implements Comparable<IngredientOverride>
         {
             throw new JsonSyntaxException(Util.makeMissingJSONElementException(OVERRIDES_KEY));
         }
+        JsonElement overrides = json.get(OVERRIDES_KEY);
+        if (!overrides.isJsonArray())
+        {
+            throw new JsonSyntaxException("Expected an array but got a " + overrides.getClass().getName());
+        }
         return new IngredientOverride(JSONUtils.getInt(json, PRIORITY_KEY, 0),
                 ConditionBuilder.build(JSONUtils.getString(json, CONDITION_KEY)),
-                IngredientOverride.deserializeIngredientOverrides(JSONUtils.getJsonArray(json, OVERRIDES_KEY)));
+                IngredientOverride.deserializeIngredientOverrides(overrides.getAsJsonArray()));
     }
 
     private static EquatableMap<Ingredient, Ingredient> deserializeIngredientOverrides(JsonArray json)
