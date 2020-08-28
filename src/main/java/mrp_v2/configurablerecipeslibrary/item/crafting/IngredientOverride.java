@@ -52,6 +52,10 @@ class IngredientOverride implements Comparable<IngredientOverride>
         {
             throw new JsonSyntaxException(Util.makeMissingJSONElementException(CONDITION_KEY));
         }
+        if (!json.has(OVERRIDES_KEY))
+        {
+            throw new JsonSyntaxException(Util.makeMissingJSONElementException(OVERRIDES_KEY));
+        }
         return new IngredientOverride(JSONUtils.getInt(json, PRIORITY_KEY, 0),
                 ConditionBuilder.build(JSONUtils.getString(json, CONDITION_KEY)),
                 IngredientOverride.deserializeIngredientOverrides(JSONUtils.getJsonArray(json, OVERRIDES_KEY)));
