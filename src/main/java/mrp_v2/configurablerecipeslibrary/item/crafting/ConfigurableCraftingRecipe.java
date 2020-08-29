@@ -19,7 +19,6 @@ public abstract class ConfigurableCraftingRecipe implements ICraftingRecipe
     protected final String group;
     protected final ItemStack recipeOutput;
     protected final NonNullList<Ingredient> recipeItems;
-    protected final TreeSet<IngredientOverride> overrides;
 
     protected ConfigurableCraftingRecipe(ResourceLocation id, String group, ItemStack recipeOutput,
             NonNullList<Ingredient> recipeItems, Set<IngredientOverride> overrides)
@@ -27,11 +26,11 @@ public abstract class ConfigurableCraftingRecipe implements ICraftingRecipe
         this.id = id;
         this.group = group;
         this.recipeOutput = recipeOutput;
+        calculateRecipeItems(recipeItems, overrides);
         this.recipeItems = recipeItems;
-        this.overrides = this.organizeOverrides(overrides);
     }
 
-    private TreeSet<IngredientOverride> organizeOverrides(Set<IngredientOverride> overrides)
+    private void calculateRecipeItems(NonNullList<Ingredient> recipeItems, Set<IngredientOverride> overrides)
     {
         HashMap<Integer, HashSet<IngredientOverride>> overridesByPriority = new HashMap<>();
         for (IngredientOverride override : overrides)
@@ -61,7 +60,8 @@ public abstract class ConfigurableCraftingRecipe implements ICraftingRecipe
                 }
             }
         }
-        return new TreeSet<>(overrides);
+        TreeSet<IngredientOverride> set = new TreeSet<>(overrides);
+        set.forEach((override) -> override.apply(recipeItems));
     }
 
     /**
@@ -89,13 +89,7 @@ public abstract class ConfigurableCraftingRecipe implements ICraftingRecipe
 
     @Override public NonNullList<Ingredient> getIngredients()
     {
-        NonNullList<Ingredient> ingredients = NonNullList.create();
-        ingredients.addAll(this.recipeItems);
-        for (IngredientOverride override : this.overrides)
-        {
-            override.apply(ingredients);
-        }
-        return ingredients;
+        return recipeItems;
     }
 
     @Override public String getGroup()
