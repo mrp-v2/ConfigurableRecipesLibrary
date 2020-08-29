@@ -249,10 +249,10 @@ public class ConfigurableShapedRecipe extends ConfigurableCraftingRecipe impleme
         return Serializer.INSTANCE;
     }
 
-    public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>>
+    static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>>
             implements IRecipeSerializer<ConfigurableShapedRecipe>
     {
-        public static final Serializer INSTANCE = new Serializer();
+        static final Serializer INSTANCE = new Serializer();
 
         private Serializer()
         {

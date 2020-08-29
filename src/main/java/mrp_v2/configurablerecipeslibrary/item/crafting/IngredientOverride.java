@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import mrp_v2.configurablerecipeslibrary.util.Util;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
@@ -39,7 +38,7 @@ class IngredientOverride implements Comparable<IngredientOverride>
                 new HashSet<>();
     }
 
-    static Set<IngredientOverride> deserializeOverrides(JsonArray json)
+    private static Set<IngredientOverride> deserializeOverrides(JsonArray json)
     {
         Set<IngredientOverride> overrides = new HashSet<>();
         Util.doForEachJsonObject(json, (obj) -> overrides.add(IngredientOverride.deserializeOverride(obj)));

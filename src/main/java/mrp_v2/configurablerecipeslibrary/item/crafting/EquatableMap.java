@@ -13,14 +13,14 @@ class EquatableMap<K, V>
     private final ArrayList<K> keys;
     private final ArrayList<V> values;
 
-    public EquatableMap(BiFunction<K, K, Boolean> equalityComparator)
+    EquatableMap(BiFunction<K, K, Boolean> equalityComparator)
     {
         this.equalityComparator = equalityComparator;
         this.keys = new ArrayList<>();
         this.values = new ArrayList<>();
     }
 
-    @Nullable public V get(K key)
+    @Nullable V get(K key)
     {
         int index = getIndexOf(key);
         return index != -1 ? this.values.get(index) : null;
@@ -45,14 +45,14 @@ class EquatableMap<K, V>
         return foundIndex;
     }
 
-    public Set<K> keySet()
+    Set<K> keySet()
     {
         HashSet<K> set = new HashSet<>(this.keys.size());
         set.addAll(this.keys);
         return set;
     }
 
-    @Nullable public V put(K original, V replacement)
+    @Nullable V put(K original, V replacement)
     {
         if (containsKey(original))
         {
@@ -63,7 +63,7 @@ class EquatableMap<K, V>
         return null;
     }
 
-    public boolean containsKey(K key)
+    boolean containsKey(K key)
     {
         return getIndexOf(key) != -1;
     }

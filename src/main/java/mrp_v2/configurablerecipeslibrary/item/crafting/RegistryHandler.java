@@ -1,8 +1,6 @@
-package mrp_v2.configurablerecipeslibrary.util;
+package mrp_v2.configurablerecipeslibrary.item.crafting;
 
 import mrp_v2.configurablerecipeslibrary.ConfigurableRecipesLibrary;
-import mrp_v2.configurablerecipeslibrary.item.crafting.ConfigurableShapedRecipe;
-import mrp_v2.configurablerecipeslibrary.item.crafting.ConfigurableShapelessRecipe;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

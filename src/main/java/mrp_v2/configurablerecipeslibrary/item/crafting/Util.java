@@ -1,4 +1,4 @@
-package mrp_v2.configurablerecipeslibrary.util;
+package mrp_v2.configurablerecipeslibrary.item.crafting;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -6,9 +6,9 @@ import com.google.gson.JsonSyntaxException;
 
 import java.util.function.Consumer;
 
-public class Util
+class Util
 {
-    public static void doForEachJsonObject(JsonArray json, Consumer<JsonObject> objectConsumer)
+    static void doForEachJsonObject(JsonArray json, Consumer<JsonObject> objectConsumer)
     {
         json.forEach((element) ->
         {
@@ -20,7 +20,7 @@ public class Util
         });
     }
 
-    public static String makeMissingJSONElementException(String element)
+    static String makeMissingJSONElementException(String element)
     {
         return "Missing JSON element '" + element + "'";
     }
