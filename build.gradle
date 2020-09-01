@@ -15,7 +15,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'maven-publish'
 def mcVersion = '1.16.2'
 def majorForgeVersion = '33'
-def forgeVersion = "${majorForgeVersion}.0.20"
+def forgeVersion = "${majorForgeVersion}.0.32"
 version = "${mcVersion}-1.0.0.0"
 def author = 'mrp_v2'
 def modId = 'configurablerecipeslibrary'
@@ -126,6 +126,7 @@ processResources {
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            artifact jar
             artifact devJar
         }
     }
