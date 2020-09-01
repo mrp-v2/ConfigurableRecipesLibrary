@@ -18,17 +18,17 @@ import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nullable;
-import java.util.HashSet;
 import java.util.Set;
 
 public class ConfigurableShapelessRecipe extends ConfigurableCraftingRecipe
 {
-    private final boolean isSimple;
+    private boolean isSimple;
 
     private ConfigurableShapelessRecipe(ResourceLocation id, String group, ItemStack recipeOutput,
             NonNullList<Ingredient> recipeItems)
     {
-        this(id, group, recipeOutput, recipeItems, new HashSet<>());
+        super(id, group, recipeOutput, recipeItems);
+        this.isSimple = recipeItems.stream().allMatch(Ingredient::isSimple);
     }
 
     private ConfigurableShapelessRecipe(ResourceLocation id, String group, ItemStack recipeOutput,
@@ -36,6 +36,16 @@ public class ConfigurableShapelessRecipe extends ConfigurableCraftingRecipe
     {
         super(id, group, recipeOutput, recipeItems, overrides);
         this.isSimple = recipeItems.stream().allMatch(Ingredient::isSimple);
+    }
+
+    @Override public NonNullList<Ingredient> getIngredients()
+    {
+        if (!this.hasCalculatedIngredients)
+        {
+            super.getIngredients();
+            this.isSimple = this.recipeItems.stream().allMatch(Ingredient::isSimple);
+        }
+        return super.getIngredients();
     }
 
     @Override public boolean matches(CraftingInventory inv, World worldIn)

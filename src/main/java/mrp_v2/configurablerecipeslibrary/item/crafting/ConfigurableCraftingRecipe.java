@@ -18,7 +18,9 @@ public abstract class ConfigurableCraftingRecipe implements ICraftingRecipe
     protected final ResourceLocation id;
     protected final String group;
     protected final ItemStack recipeOutput;
-    protected final NonNullList<Ingredient> recipeItems;
+    private final TreeSet<IngredientOverride> overrides;
+    protected NonNullList<Ingredient> recipeItems;
+    protected boolean hasCalculatedIngredients;
 
     protected ConfigurableCraftingRecipe(ResourceLocation id, String group, ItemStack recipeOutput,
             NonNullList<Ingredient> recipeItems, Set<IngredientOverride> overrides)
@@ -26,13 +28,14 @@ public abstract class ConfigurableCraftingRecipe implements ICraftingRecipe
         this.id = id;
         this.group = group;
         this.recipeOutput = recipeOutput;
-        calculateRecipeItems(recipeItems, overrides);
         this.recipeItems = recipeItems;
+        this.overrides = this.organizeOverrides(overrides);
+        this.hasCalculatedIngredients = false;
     }
 
-    private void calculateRecipeItems(NonNullList<Ingredient> recipeItems, Set<IngredientOverride> overrides)
+    private TreeSet<IngredientOverride> organizeOverrides(Set<IngredientOverride> overrides)
     {
-        HashMap<Integer, HashSet<IngredientOverride>> overridesByPriority = new HashMap<>();
+        TreeMap<Integer, HashSet<IngredientOverride>> overridesByPriority = new TreeMap<>();
         for (IngredientOverride override : overrides)
         {
             if (overridesByPriority.containsKey(override.getPriority()))
@@ -60,8 +63,28 @@ public abstract class ConfigurableCraftingRecipe implements ICraftingRecipe
                 }
             }
         }
-        TreeSet<IngredientOverride> set = new TreeSet<>(overrides);
-        set.forEach((override) -> override.apply(recipeItems));
+        int currentPriority = 0;
+        TreeSet<IngredientOverride> prioritizedOverrides = new TreeSet<>();
+        for (int priority : overridesByPriority.keySet())
+        {
+            for (IngredientOverride override : overridesByPriority.get(priority))
+            {
+                override.setPriority(currentPriority++);
+                prioritizedOverrides.add(override);
+            }
+        }
+        return prioritizedOverrides;
+    }
+
+    protected ConfigurableCraftingRecipe(ResourceLocation id, String group, ItemStack recipeOutput,
+            NonNullList<Ingredient> recipeItems)
+    {
+        this.id = id;
+        this.group = group;
+        this.recipeOutput = recipeOutput;
+        this.recipeItems = recipeItems;
+        this.overrides = null;
+        this.hasCalculatedIngredients = true;
     }
 
     /**
@@ -89,7 +112,18 @@ public abstract class ConfigurableCraftingRecipe implements ICraftingRecipe
 
     @Override public NonNullList<Ingredient> getIngredients()
     {
-        return recipeItems;
+        if (!hasCalculatedIngredients)
+        {
+            NonNullList<Ingredient> ingredients = NonNullList.create();
+            ingredients.addAll(this.recipeItems);
+            for (IngredientOverride override : this.overrides)
+            {
+                override.apply(ingredients);
+            }
+            this.recipeItems = ingredients;
+            hasCalculatedIngredients = true;
+        }
+        return this.recipeItems;
     }
 
     @Override public String getGroup()

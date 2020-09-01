@@ -19,9 +19,9 @@ class IngredientOverride implements Comparable<IngredientOverride>
     private static final String CONDITION_KEY = "condition";
     private static final String REPLACEMENT_KEY = "replacement";
     private static final String PRIORITY_KEY = "priority";
-    private final int priority;
     private final Supplier<Boolean> conditionSupplier;
     private final EquatableMap<Ingredient, Ingredient> ingredientOverrides;
+    private int priority;
 
     private IngredientOverride(int priority, Supplier<Boolean> conditionSupplier,
             EquatableMap<Ingredient, Ingredient> ingredientOverrides)
@@ -124,6 +124,11 @@ class IngredientOverride implements Comparable<IngredientOverride>
     int getPriority()
     {
         return this.priority;
+    }
+
+    void setPriority(int priority)
+    {
+        this.priority = priority;
     }
 
     void apply(NonNullList<Ingredient> original)

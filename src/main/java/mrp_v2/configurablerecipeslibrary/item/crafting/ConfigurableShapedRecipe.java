@@ -21,7 +21,6 @@ import net.minecraftforge.common.crafting.IShapedRecipe;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nullable;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,7 +32,9 @@ public class ConfigurableShapedRecipe extends ConfigurableCraftingRecipe impleme
     private ConfigurableShapedRecipe(ResourceLocation id, String group, ItemStack recipeOutput,
             NonNullList<Ingredient> recipeItems, int recipeWidth, int recipeHeight)
     {
-        this(id, group, recipeOutput, recipeItems, recipeWidth, recipeHeight, new HashSet<>());
+        super(id, group, recipeOutput, recipeItems);
+        this.recipeWidth = recipeWidth;
+        this.recipeHeight = recipeHeight;
     }
 
     private ConfigurableShapedRecipe(ResourceLocation id, String group, ItemStack recipeOutput,
