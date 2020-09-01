@@ -1,6 +1,8 @@
 buildscript {
     repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
+        maven {
+            url = 'https://files.minecraftforge.net/maven'
+        }
         jcenter()
         mavenCentral()
     }
@@ -20,7 +22,8 @@ def modId = 'configurablerecipeslibrary'
 archivesBaseName = modId
 group = "${author}.${archivesBaseName}"
 
-println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' +
+        System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
     mappings channel: 'snapshot', version: '20200723-1.16.1'
     runs {
@@ -93,15 +96,13 @@ dependencies {
 
 jar {
     manifest {
-        attributes([
-                "Specification-Title"     : archivesBaseName,
-                "Specification-Vendor"    : author,
-                "Specification-Version"   : "1", // We are version 1 of ourselves
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : "${version}",
-                "Implementation-Vendor"   : author,
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
+        attributes(["Specification-Title"     : archivesBaseName,
+                    "Specification-Vendor"    : author,
+                    "Specification-Version"   : "1", // We are version 1 of ourselves
+                    "Implementation-Title"    : project.name,
+                    "Implementation-Version"  : "${version}",
+                    "Implementation-Vendor"   : author,
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
     }
 }
 
@@ -114,7 +115,8 @@ processResources {
     inputs.property 'mcVersion', mcVersion
     from(sourceSets.main.resources.srcDirs) {
         include 'META-INF/mods.toml'
-        expand 'version': project.version, 'modId': modId, 'majorForgeVersion': majorForgeVersion, 'mcVersion': mcVersion
+        expand 'version': project.version, 'modId': modId, 'majorForgeVersion': majorForgeVersion,
+                'mcVersion': mcVersion
     }
     from(sourceSets.main.resources.srcDirs) {
         exclude 'META-INF/mods.toml'
