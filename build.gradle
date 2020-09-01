@@ -126,7 +126,6 @@ processResources {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifact jar
             artifact devJar
         }
     }
