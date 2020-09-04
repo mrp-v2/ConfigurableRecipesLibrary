@@ -1,5 +1,5 @@
 {
-    "type": "configurablerecipeslibrary:crafting_shaped_configurable",
+    "type": "${modId}:crafting_shaped_configurable",
     "pattern": [
         " # ", "#X#", " # "
     ],

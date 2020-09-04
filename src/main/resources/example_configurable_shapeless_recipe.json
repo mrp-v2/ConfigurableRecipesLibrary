@@ -1,5 +1,5 @@
 {
-    "type": "configurablerecipeslibrary:crafting_shapeless_configurable",
+    "type": "${modId}:crafting_shapeless_configurable",
     "group": "concrete_powder",
     "ingredients": [
         {

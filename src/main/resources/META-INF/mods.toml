@@ -1,20 +1,20 @@
 modLoader="javafml"
-loaderVersion="[${majorForgeVersion},)"
+loaderVersion="[${forgeMajor},)"
 license="All rights reserved"
 [[mods]]
 	modId="${modId}"
 	version="${version}"
-	displayName="Configurable Recipes Library"
-	logoFile="ConfigurableRecipesLibraryLogo.png"
-	updateJSONURL="https://raw.githubusercontent.com/mrp-v2/ModUpdateFiles/master/ConfigurableRecipesLibrary.json"
-	issueTrackerURL="https://www.curseforge.com/minecraft/mc-mods/configurable-recipes-library/issues"
-	displayURL="https://minecraft.curseforge.com/projects/configurable-recipes-library"
-	authors="mrp_v2"
-	description='''Adds recipe types that can change depending on certain values.'''
+	displayName="${modDisplayName}"
+	logoFile="${logo}"
+	updateJSONURL="${updateURL}"
+	issueTrackerURL="${issuesURL}"
+	displayURL="${homepageURL}"
+	authors="${author}"
+	description='''${modDescription}'''
 [[dependencies.${modId}]]
     modId="forge"
     mandatory=true
-    versionRange="[${majorForgeVersion},)"
+    versionRange="[${forgeMajor},)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.${modId}]]

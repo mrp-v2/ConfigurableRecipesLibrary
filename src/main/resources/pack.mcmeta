@@ -1,6 +1,6 @@
 {
     "pack": {
-        "description": "Configurable Recipes Library Resources",
+        "description": "${modDisplayName} resources",
         "pack_format": 6
     }
 }
