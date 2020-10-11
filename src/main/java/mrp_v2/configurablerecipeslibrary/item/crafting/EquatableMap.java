@@ -1,70 +1,157 @@
 package mrp_v2.configurablerecipeslibrary.item.crafting;
 
 import javax.annotation.Nullable;
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiFunction;
 
-class EquatableMap<K, V>
+public class EquatableMap<K, V> implements Map<K, V>
 {
-    private final BiFunction<K, K, Boolean> equalityComparator;
-    private final ArrayList<K> keys;
-    private final ArrayList<V> values;
+    private final BiFunction<K, K, Boolean> keyEqualityComparator;
+    private final BiFunction<V, V, Boolean> valueEqualityComparator;
+    private final ArrayList<Entry<K, V>> entries;
 
-    EquatableMap(BiFunction<K, K, Boolean> equalityComparator)
+    public EquatableMap(BiFunction<K, K, Boolean> keyEqualityComparator,
+            BiFunction<V, V, Boolean> valueEqualityComparator)
     {
-        this.equalityComparator = equalityComparator;
-        this.keys = new ArrayList<>();
-        this.values = new ArrayList<>();
+        this.keyEqualityComparator = keyEqualityComparator;
+        this.valueEqualityComparator = valueEqualityComparator;
+        this.entries = new ArrayList<>();
     }
 
-    @Nullable V get(K key)
+    @Override public int size()
     {
-        int index = getIndexOf(key);
-        return index != -1 ? this.values.get(index) : null;
+        return this.entries.size();
     }
 
-    private int getIndexOf(K key)
+    @Override public boolean isEmpty()
     {
-        int foundIndex = -1;
-        for (int i = 0; i < this.keys.size(); i++)
+        return this.entries.size() == 0;
+    }
+
+    @Override public boolean containsKey(Object key)
+    {
+        return getEntry(key) != null;
+    }
+
+    @Override public boolean containsValue(Object value)
+    {
+        for (Entry<K, V> entry : this.entries)
         {
-            K entry = this.keys.get(i);
-            if (this.equalityComparator.apply(key, entry))
+            if (valueEqualityComparator.apply(entry.getValue(), (V) value))
             {
-                if (foundIndex != -1)
-                {
-                    throw new InvalidParameterException(
-                            "There are multiple entries that match the given equality comparator!");
-                }
-                foundIndex = i;
+                return true;
             }
         }
-        return foundIndex;
+        return false;
     }
 
-    Set<K> keySet()
+    @Nullable @Override public V get(Object key)
     {
-        HashSet<K> set = new HashSet<>(this.keys.size());
-        set.addAll(this.keys);
-        return set;
-    }
-
-    @Nullable V put(K original, V replacement)
-    {
-        if (containsKey(original))
+        Entry<K, V> entry = getEntry(key);
+        if (entry != null)
         {
-            return this.values.set(getIndexOf(original), replacement);
+            return entry.getValue();
         }
-        this.keys.add(original);
-        this.values.add(replacement);
         return null;
     }
 
-    boolean containsKey(K key)
+    @Nullable public V put(K key, V value)
     {
-        return getIndexOf(key) != -1;
+        if (containsKey(key))
+        {
+            return this.getEntry(key).setValue(value);
+        }
+        this.entries.add(new Entry<>(key, value));
+        return null;
+    }
+
+    @Nullable @Override public V remove(Object key)
+    {
+        Entry<K, V> old = getEntry(key);
+        return entries.remove(old) ? old.value : null;
+    }
+
+    @Override public void putAll(Map<? extends K, ? extends V> m)
+    {
+        for (Map.Entry<? extends K, ? extends V> entry : m.entrySet())
+        {
+            this.entries.add(new Entry<>(entry.getKey(), entry.getValue()));
+        }
+    }
+
+    @Override public void clear()
+    {
+        this.entries.clear();
+    }
+
+    public Set<K> keySet()
+    {
+        HashSet<K> set = new HashSet<>(this.entries.size());
+        for (Entry<K, V> entry : this.entries)
+        {
+            set.add(entry.getKey());
+        }
+        return set;
+    }
+
+    @Override public Collection<V> values()
+    {
+        HashSet<V> set = new HashSet<>(this.entries.size());
+        for (Entry<K, V> entry : this.entries)
+        {
+            set.add(entry.getValue());
+        }
+        return set;
+    }
+
+    @Override public Set<Map.Entry<K, V>> entrySet()
+    {
+        return new HashSet<>(this.entries);
+    }
+
+    @Nullable private Entry<K, V> getEntry(Object key)
+    {
+        for (Entry<K, V> entry : this.entries)
+        {
+            if (keyEqualityComparator.apply(entry.getKey(), (K) key))
+            {
+                return entry;
+            }
+        }
+        return null;
+    }
+
+    public boolean containsKeyK(K key)
+    {
+        return getEntry(key) != null;
+    }
+
+    public static class Entry<K, V> implements Map.Entry<K, V>
+    {
+        private final K key;
+        private V value;
+
+        public Entry(K key, V value)
+        {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override public K getKey()
+        {
+            return this.key;
+        }
+
+        @Override public V getValue()
+        {
+            return this.value;
+        }
+
+        @Override public V setValue(V value)
+        {
+            V old = this.value;
+            this.value = value;
+            return old;
+        }
     }
 }

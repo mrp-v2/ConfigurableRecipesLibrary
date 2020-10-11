@@ -12,13 +12,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
-class IngredientOverride implements Comparable<IngredientOverride>
+public class IngredientOverride implements Comparable<IngredientOverride>
 {
-    private static final String OVERRIDES_KEY = "overrides";
-    private static final String ORIGINAL_KEY = "original";
-    private static final String CONDITION_KEY = "condition";
-    private static final String REPLACEMENT_KEY = "replacement";
-    private static final String PRIORITY_KEY = "priority";
+    public static final String OVERRIDES_KEY = "overrides";
+    public static final String ORIGINAL_KEY = "original";
+    public static final String CONDITION_KEY = "condition";
+    public static final String REPLACEMENT_KEY = "replacement";
+    public static final String PRIORITY_KEY = "priority";
     private final Supplier<Boolean> conditionSupplier;
     private final EquatableMap<Ingredient, Ingredient> ingredientOverrides;
     private int priority;
@@ -62,56 +62,31 @@ class IngredientOverride implements Comparable<IngredientOverride>
         }
         return new IngredientOverride(JSONUtils.getInt(json, PRIORITY_KEY, 0),
                 ConditionBuilder.build(JSONUtils.getString(json, CONDITION_KEY)),
-                IngredientOverride.deserializeIngredientOverrides(overrides.getAsJsonArray()));
+                deserializeIngredientOverrides(overrides.getAsJsonArray()));
     }
 
     private static EquatableMap<Ingredient, Ingredient> deserializeIngredientOverrides(JsonArray json)
     {
-        EquatableMap<Ingredient, Ingredient> map = new EquatableMap<>(IngredientOverride::ingredientsEqual);
+        EquatableMap<Ingredient, Ingredient> map =
+                new EquatableMap<>(IngredientOverride::ingredientsEqual, IngredientOverride::ingredientsEqual);
         Util.doForEachJsonObject(json, (obj) ->
         {
-            Set<Ingredient> originals;
             if (!obj.has(ORIGINAL_KEY))
             {
                 throw new JsonSyntaxException(Util.makeMissingJSONElementException(ORIGINAL_KEY));
             }
-            JsonElement element = obj.get(ORIGINAL_KEY);
-            if (element.isJsonObject())
-            {
-                originals = new HashSet<>(1);
-                originals.add(Ingredient.deserialize(element));
-            } else if (element.isJsonArray())
-            {
-                originals = deserializeIngredientList(element.getAsJsonArray());
-            } else
-            {
-                throw new JsonSyntaxException("Expected an object or array but got a " + element.getClass().getName());
-            }
+            Ingredient original = Ingredient.deserialize(obj.get(ORIGINAL_KEY));
             if (!obj.has(REPLACEMENT_KEY))
             {
                 throw new JsonSyntaxException(Util.makeMissingJSONElementException(REPLACEMENT_KEY));
             }
             Ingredient replacement = Ingredient.deserialize(obj.get(REPLACEMENT_KEY));
-            originals.forEach((original) ->
-            {
-                if (map.put(original, replacement) != null)
-                {
-                    throw new JsonSyntaxException(
-                            "Cannot have multiple replacement ingredients for the same original ingredient!");
-                }
-            });
+            map.put(original, replacement);
         });
         return map;
     }
 
-    private static Set<Ingredient> deserializeIngredientList(JsonArray json)
-    {
-        Set<Ingredient> ingredients = new HashSet<>();
-        Util.doForEachJsonObject(json, (obj) -> ingredients.add(Ingredient.deserialize(obj)));
-        return ingredients;
-    }
-
-    private static boolean ingredientsEqual(Ingredient a, Ingredient b)
+    public static boolean ingredientsEqual(Ingredient a, Ingredient b)
     {
         return a.serialize().toString().equals(b.serialize().toString());
     }
