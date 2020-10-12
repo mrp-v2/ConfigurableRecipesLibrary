@@ -7,6 +7,7 @@ import mrp_v2.configurablerecipeslibrary.item.crafting.IngredientOverride;
 import net.minecraft.item.crafting.Ingredient;
 
 import java.util.Map;
+import java.util.Set;
 
 public class DataGenIngredientOverride
 {
@@ -41,16 +42,18 @@ public class DataGenIngredientOverride
         return obj;
     }
 
-    public static class Builder
+    public static class Builder<T>
     {
-        private final ConfigurableShapedRecipeBuilder parent;
+        private final T parent;
+        private final Set<DataGenIngredientOverride> toAddTo;
         private final String condition;
         private final Map<Ingredient, Ingredient> overrides;
         private int priority;
 
-        public Builder(ConfigurableShapedRecipeBuilder parent, String condition)
+        public Builder(T parent, Set<DataGenIngredientOverride> toAddTo, String condition)
         {
             this.parent = parent;
+            this.toAddTo = toAddTo;
             this.condition = condition;
             overrides = new EquatableMap<>(IngredientOverride::ingredientsEqual, IngredientOverride::ingredientsEqual);
         }
@@ -67,9 +70,9 @@ public class DataGenIngredientOverride
             return this;
         }
 
-        public ConfigurableShapedRecipeBuilder end()
+        public T end()
         {
-            this.parent.overrides.add(this.build());
+            this.toAddTo.add(this.build());
             return this.parent;
         }
 

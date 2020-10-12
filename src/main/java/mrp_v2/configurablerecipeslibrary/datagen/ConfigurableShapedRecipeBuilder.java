@@ -43,9 +43,9 @@ public class ConfigurableShapedRecipeBuilder extends ShapedRecipeBuilder
         return new ConfigurableShapedRecipeBuilder(resultIn, countIn);
     }
 
-    public DataGenIngredientOverride.Builder addOverride(String condition)
+    public DataGenIngredientOverride.Builder<ConfigurableShapedRecipeBuilder> addOverride(String condition)
     {
-        return new DataGenIngredientOverride.Builder(this, condition);
+        return new DataGenIngredientOverride.Builder<>(this, this.overrides, condition);
     }
 
     /**
