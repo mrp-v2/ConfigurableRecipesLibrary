@@ -25,7 +25,10 @@ public class DataGenIngredientOverride
     {
         JsonObject obj = new JsonObject();
         obj.addProperty(IngredientOverride.CONDITION_KEY, this.condition);
-        obj.addProperty(IngredientOverride.PRIORITY_KEY, this.priority);
+        if (this.priority != 0)
+        {
+            obj.addProperty(IngredientOverride.PRIORITY_KEY, this.priority);
+        }
         JsonArray overrides = new JsonArray();
         for (Map.Entry<Ingredient, Ingredient> entry : this.overrides.entrySet())
         {
