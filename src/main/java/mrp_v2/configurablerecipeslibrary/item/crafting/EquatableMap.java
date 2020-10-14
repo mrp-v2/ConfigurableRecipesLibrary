@@ -121,11 +121,6 @@ public class EquatableMap<K, V> implements Map<K, V>
         return null;
     }
 
-    public boolean containsKeyK(K key)
-    {
-        return getEntry(key) != null;
-    }
-
     public static class Entry<K, V> implements Map.Entry<K, V>
     {
         private final K key;
