@@ -6,6 +6,7 @@ import mrp_v2.configurablerecipeslibrary.item.crafting.ConfigurableShapelessReci
 import mrp_v2.configurablerecipeslibrary.item.crafting.IngredientOverride;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
+import net.minecraft.advancements.ICriterionInstance;
 import net.minecraft.advancements.IRequirementsStrategy;
 import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
 import net.minecraft.data.IFinishedRecipe;
@@ -13,6 +14,7 @@ import net.minecraft.data.ShapelessRecipeBuilder;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.tags.ITag;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
@@ -45,6 +47,48 @@ public class ConfigurableShapelessRecipeBuilder extends ShapelessRecipeBuilder
     public DataGenIngredientOverride.Builder<ConfigurableShapelessRecipeBuilder> addOverride(String condition)
     {
         return new DataGenIngredientOverride.Builder<>(this, this.overrides, condition);
+    }
+
+    @Override public ConfigurableShapelessRecipeBuilder addIngredient(ITag<Item> tagIn)
+    {
+        super.addIngredient(tagIn);
+        return this;
+    }
+
+    @Override public ConfigurableShapelessRecipeBuilder addIngredient(IItemProvider itemIn)
+    {
+        super.addIngredient(itemIn);
+        return this;
+    }
+
+    @Override public ConfigurableShapelessRecipeBuilder addIngredient(IItemProvider itemIn, int quantity)
+    {
+        super.addIngredient(itemIn, quantity);
+        return this;
+    }
+
+    @Override public ConfigurableShapelessRecipeBuilder addIngredient(Ingredient ingredientIn)
+    {
+        super.addIngredient(ingredientIn);
+        return this;
+    }
+
+    @Override public ConfigurableShapelessRecipeBuilder addIngredient(Ingredient ingredientIn, int quantity)
+    {
+        super.addIngredient(ingredientIn, quantity);
+        return this;
+    }
+
+    @Override public ConfigurableShapelessRecipeBuilder addCriterion(String name, ICriterionInstance criterionIn)
+    {
+        super.addCriterion(name, criterionIn);
+        return this;
+    }
+
+    @Override public ConfigurableShapelessRecipeBuilder setGroup(String groupIn)
+    {
+        super.setGroup(groupIn);
+        return this;
     }
 
     /**

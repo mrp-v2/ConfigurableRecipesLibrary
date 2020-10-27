@@ -6,6 +6,7 @@ import mrp_v2.configurablerecipeslibrary.item.crafting.ConfigurableShapedRecipe;
 import mrp_v2.configurablerecipeslibrary.item.crafting.IngredientOverride;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
+import net.minecraft.advancements.ICriterionInstance;
 import net.minecraft.advancements.IRequirementsStrategy;
 import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
 import net.minecraft.data.IFinishedRecipe;
@@ -13,6 +14,7 @@ import net.minecraft.data.ShapedRecipeBuilder;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.tags.ITag;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
@@ -46,6 +48,42 @@ public class ConfigurableShapedRecipeBuilder extends ShapedRecipeBuilder
     public DataGenIngredientOverride.Builder<ConfigurableShapedRecipeBuilder> addOverride(String condition)
     {
         return new DataGenIngredientOverride.Builder<>(this, this.overrides, condition);
+    }
+
+    @Override public ConfigurableShapedRecipeBuilder key(Character symbol, ITag<Item> tagIn)
+    {
+        super.key(symbol, tagIn);
+        return this;
+    }
+
+    @Override public ConfigurableShapedRecipeBuilder key(Character symbol, IItemProvider itemIn)
+    {
+        super.key(symbol, itemIn);
+        return this;
+    }
+
+    @Override public ConfigurableShapedRecipeBuilder key(Character symbol, Ingredient ingredientIn)
+    {
+        super.key(symbol, ingredientIn);
+        return this;
+    }
+
+    @Override public ConfigurableShapedRecipeBuilder patternLine(String patternIn)
+    {
+        super.patternLine(patternIn);
+        return this;
+    }
+
+    @Override public ConfigurableShapedRecipeBuilder addCriterion(String name, ICriterionInstance criterionIn)
+    {
+        super.addCriterion(name, criterionIn);
+        return this;
+    }
+
+    @Override public ConfigurableShapedRecipeBuilder setGroup(String groupIn)
+    {
+        super.setGroup(groupIn);
+        return this;
     }
 
     /**

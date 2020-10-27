@@ -58,13 +58,13 @@ public class DataGenIngredientOverride
             overrides = new EquatableMap<>(IngredientOverride::ingredientsEqual, IngredientOverride::ingredientsEqual);
         }
 
-        public Builder priority(int priority)
+        public Builder<T> priority(int priority)
         {
             this.priority = priority;
             return this;
         }
 
-        public Builder override(Ingredient original, Ingredient replacement)
+        public Builder<T> override(Ingredient original, Ingredient replacement)
         {
             this.overrides.put(original, replacement);
             return this;
