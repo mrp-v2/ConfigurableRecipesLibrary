@@ -70,11 +70,6 @@ minecraft {
     }
 }
 
-task devJar(type: Jar) {
-    classifier = 'dev'
-    from sourceSets.main.output
-}
-
 dependencies {
     minecraft "net.minecraftforge:forge:${mcVersion}-${forgeVersion}"
 }
@@ -123,7 +118,6 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             artifact jar
-            artifact devJar
         }
     }
 }
