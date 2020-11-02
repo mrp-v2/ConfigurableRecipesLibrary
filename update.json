@@ -1,0 +1,13 @@
+{
+    "homepage": "https://minecraft.curseforge.com/projects/configurable-recipes-library",
+    "promos": {
+        "1.16.2-latest": "1.16.2-1.0.0.0",
+        "1.16.2-recommended": "1.16.2-1.0.0.0",
+        "1.16.3-latest": "1.16.3-2.1.0.0",
+        "1.16.3-recommended": "1.16.3-2.1.0.0",
+        "1.16.4-latest": "1.16.4-3.0.0.0",
+        "1.16.4-recommended": "1.16.4-3.0.0.0",
+        "latest": "1.16.4-3.0.0.0",
+        "recommended": "1.16.4-3.0.0.0"
+    }
+}

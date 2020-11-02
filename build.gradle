@@ -19,8 +19,8 @@ def modId = capitalizedModId.toLowerCase()
 def forgeVersion = "${forgeMajor}.${forgeMinor}.${forgePatch}"
 def homepageURL = "https://www.curseforge.com/minecraft/mc-mods/${modDisplayName.replace(' ', '-').toLowerCase()}"
 def issuesURL = "${homepageURL}/issues"
-def updateURL = "https://raw.githubusercontent.com/mrp-v2/ModUpdateFiles/master/${capitalizedModId}.json"
-def logo = "${capitalizedModId}Logo.png"
+def updateURL = "https://raw.githubusercontent.com/mrp-v2/${capitalizedModId}/master/update.json"
+def logo = "logo.png"
 version = "${mcVersion}-${modMajorMod}.${modMajorAPI}.${modMinor}.${modPatch}"
 archivesBaseName = modId
 group = "${author}.${archivesBaseName}"
@@ -33,7 +33,7 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
             mods {
                 configurablerecipeslibrary {
@@ -51,7 +51,7 @@ minecraft {
         }
         server {
             workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
             mods {
                 configurablerecipeslibrary {
