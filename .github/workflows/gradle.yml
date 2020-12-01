@@ -24,7 +24,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Regenerate update.json
         run: ./gradlew regenerateUpdateJson
-      - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: regenerate update.json
