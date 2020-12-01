@@ -125,7 +125,8 @@ task regenerateUpdateJson {
         println 'git status --verbose'.execute().text.trim()
         println 'git remote --verbose'.execute().text.trim()
         println 'git branch --verbose'.execute().text.trim()
-        println 'git switch --track'.execute().text.trim()
+        println "git branch ${mcVersion} origin/${mcVersion}".execute().text.trim()
+        println "git switch ${mcVersion}".execute().text.trim()
         String updateJsonLocation = './update.json'
         println 'Regenerating update.json from tag: ' + tag
         JsonObject updateJson = new JsonObject()
