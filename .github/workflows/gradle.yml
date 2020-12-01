@@ -22,11 +22,9 @@ jobs:
         run: ./gradlew publishGprPublicationToGitHubPackagesRepository
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Checkout the branch
+      - name: Make a local branch
         run: |
-          raw=$(git branch -r --contains ${{ github.ref }})
-          branch=${raw/origin\/}
-          git branch $branch $raw
+          git branch master --track
       - name: Regenerate update.json
         run: ./gradlew regenerateUpdateJson
       - name: Commit new update.json
