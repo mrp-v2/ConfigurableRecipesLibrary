@@ -22,3 +22,12 @@ jobs:
         run: ./gradlew publishGprPublicationToGitHubPackagesRepository
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Regenerate update.json
+        run: ./gradlew regenerateUpdateJson
+      - name: Commit new update.json
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "regenerated update.json"
+          git push
