@@ -22,15 +22,9 @@ jobs:
         run: ./gradlew publishGprPublicationToGitHubPackagesRepository
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Make a local branch
-        run: |
-          git branch master --track
       - name: Regenerate update.json
         run: ./gradlew regenerateUpdateJson
-      - name: Commit new update.json
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add .
-          git commit -m "regenerated update.json"
-          git push
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: regenerate update.json
