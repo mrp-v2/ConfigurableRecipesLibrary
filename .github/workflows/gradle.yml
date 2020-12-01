@@ -26,7 +26,7 @@ jobs:
         run: |
           raw=$(git branch -r --contains ${{ github.ref }})
           branch=${raw/origin\/}
-          echo ::set-env name=BRANCH::$branch
+          git branch $branch $raw
       - name: Regenerate update.json
         run: ./gradlew regenerateUpdateJson
       - name: Commit new update.json
