@@ -22,6 +22,8 @@ apply plugin: 'maven-publish'
 String tag = System.getenv('GITHUB_REF')
 if (tag != null)
 {
+    String[] path = tag.split('/')
+    tag = path[path.length - 1]
     println 'Found git tag ' + tag
     version = tag
 }
