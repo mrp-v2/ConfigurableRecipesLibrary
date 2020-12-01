@@ -142,6 +142,9 @@ task regenerateUpdateJson {
         }
         String jsonString = new GsonBuilder().setPrettyPrinting().create().toJson(updateJson)
         new File(updateJsonLocation).text = jsonString
+        println 'git status --verbose'.execute().text.trim()
+        println 'git remote --verbose'.execute().text.trim()
+        println 'git branch --verbose'.execute().text.trim()
         println 'git switch --track'.execute().text.trim()
         println 'git config user.name github-actions'.execute().text.trim()
         println 'git config user.email github-actions@github.com'.execute().text.trim()
