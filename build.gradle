@@ -22,11 +22,13 @@ apply plugin: 'maven-publish'
 String tag = System.getenv('GITHUB_REF')
 if (tag != null)
 {
+    println 'Found git tag ' + tag
     version = tag
 }
 String mcVersion = version.split('-')[0]
 if (forgeVersion == 'latest' || forgeVersion == 'recommended')
 {
+    println 'Grabbing ' + forgeVersion + ' forge version for MC ' + mcVersion
     forgeVersion = new JsonSlurper().
             parse(new URL('https://files.minecraftforge.net/maven/net/minecraftforge/forge/promotions_slim.json')).
             get('promos').get(mcVersion + '-' + forgeVersion)
