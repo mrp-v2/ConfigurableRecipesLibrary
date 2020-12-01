@@ -142,11 +142,11 @@ task regenerateUpdateJson {
         }
         String jsonString = new GsonBuilder().setPrettyPrinting().create().toJson(updateJson)
         new File(updateJsonLocation).text = jsonString
-        'git switch --track'.execute()
-        'git config user.name github-actions'.execute()
-        'git config user.email github-actions@github.com'.execute()
-        'git add .'.execute()
-        'git commit -m "regenerated update.json"'.execute()
-        'git push'.execute()
+        println 'git switch --track'.execute().text.trim()
+        println 'git config user.name github-actions'.execute().text.trim()
+        println 'git config user.email github-actions@github.com'.execute().text.trim()
+        println 'git add .'.execute().text.trim()
+        println 'git commit -m "regenerated update.json"'.execute().text.trim()
+        println 'git push'.execute().text.trim()
     }
 }
